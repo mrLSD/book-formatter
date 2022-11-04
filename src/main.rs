@@ -9,7 +9,7 @@ fn main() -> std::io::Result<()> {
         eprintln!("Set input file");
         return Ok(());
     }
-    let data = std::fs::read_to_string(&a[1]).unwrap();
+    let data = std::fs::read_to_string(&a[1])?;
 
     let mut html: Vec<String> = vec![START_HTML.to_string()];
     let mut page_counter: u64 = 0;
