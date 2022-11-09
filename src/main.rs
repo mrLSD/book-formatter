@@ -1,4 +1,4 @@
-const PAGE_SIZE: u64 = 5400; // 8200 for 12px
+const PAGE_SIZE: u64 = 2700; // 8200 for 12px
 const START_HTML: &str = r#"<html><body><div style="font-family: verdana;font-size: 60px; font-weight: bold; text-align: justify">"#;
 const END_HTML: &str = r#"</div></body></html>"#;
 
@@ -15,11 +15,11 @@ fn main() -> std::io::Result<()> {
     let mut page_counter: u64 = 0;
     let mut page = 0;
     let mut page_words: Vec<&str> = vec![];
-    for p in data.split("\n").collect::<Vec<&str>>() {
+    for p in data.split('\n').collect::<Vec<&str>>() {
         // New paragraph
         page_words.push("\n<p>");
 
-        for word in p.split(" ").collect::<Vec<&str>>() {
+        for word in p.split(' ').collect::<Vec<&str>>() {
             if (page_counter + word.len() as u64) < PAGE_SIZE {
                 page_counter += word.len() as u64;
                 page_words.push(word);
