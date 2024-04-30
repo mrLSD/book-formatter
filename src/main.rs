@@ -1,5 +1,5 @@
 const PAGE_SIZE: u64 = 2700; // 8200 for 12px
-const START_HTML: &str = r#"<html><head><meta charset="UTF-8"><.head><body><div style="font-family: verdana;font-size: 60px; font-weight: bold; text-align: left">"#;
+const START_HTML: &str = r#"<html><head><meta charset="UTF-8"></head><body><div style="font-family: verdana;font-size: 60px; font-weight: bold; text-align: left">"#;
 const END_HTML: &str = r#"</div></body></html>"#;
 
 fn main() -> std::io::Result<()> {
@@ -80,5 +80,12 @@ fn main() -> std::io::Result<()> {
     );
 
     html.push(END_HTML.to_string());
-    std::fs::write("index.html", html.join("\n"))
+    if pages_per_file > 0 {
+        let file_index = (page / pages_per_file) + 1;
+        let file_name = format!("{result_file}{file_index}.html");
+        std::fs::write(file_name, html.join("\n"))
+    } else {
+        let file_name = format!("{result_file}.html");
+        std::fs::write(file_name, html.join("\n"))
+    }
 }
