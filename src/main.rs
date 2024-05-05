@@ -1,6 +1,8 @@
+#![deny(clippy::pedantic, clippy::nursery)]
+
 const PAGE_SIZE: u64 = 2700; // 8200 for 12px
 const START_HTML: &str = r#"<html><head><meta charset="UTF-8"></head><body><div style="font-family: verdana;font-size: 60px; font-weight: bold; text-align: left">"#;
-const END_HTML: &str = r#"</div></body></html>"#;
+const END_HTML: &str = r"</div></body></html>";
 
 fn main() -> std::io::Result<()> {
     let args = std::env::args();
@@ -26,11 +28,12 @@ fn main() -> std::io::Result<()> {
     let mut page_counter: u64 = 0;
     let mut page = 0;
     let mut page_words: Vec<&str> = vec![];
-    for p in data.split('\n').collect::<Vec<&str>>() {
+    let mut file_index = 0;
+    for p in data.split('\n') {
         // New paragraph
         page_words.push("\n<p>");
 
-        for word in p.split(' ').collect::<Vec<&str>>() {
+        for word in p.split(' ') {
             if (page_counter + word.len() as u64) < PAGE_SIZE {
                 page_counter += word.len() as u64;
                 page_words.push(word);
@@ -50,15 +53,14 @@ fn main() -> std::io::Result<()> {
                     .join(""),
                 );
                 page_words = vec![word];
-                if pages_per_file > 0 {
-                    if page % pages_per_file == 0 {
-                        let file_index = page / pages_per_file;
-                        let file_name = format!("{result_file}{file_index}.html");
-                        html.push(END_HTML.to_string());
-                        std::fs::write(file_name, html.join("\n")).unwrap();
-                        // Re-init html
-                        html = vec![START_HTML.to_string()];
-                    }
+                // Checki is page splitting enable and pages separation counter reached
+                if pages_per_file > 0 && page % pages_per_file == 0 {
+                    file_index += 1;
+                    let file_name = format!("{result_file}{file_index}.html");
+                    html.push(END_HTML.to_string());
+                    std::fs::write(file_name, html.join("\n")).unwrap();
+                    // Re-init html
+                    html = vec![START_HTML.to_string()];
                 }
             }
         }
@@ -81,7 +83,7 @@ fn main() -> std::io::Result<()> {
 
     html.push(END_HTML.to_string());
     if pages_per_file > 0 {
-        let file_index = (page / pages_per_file) + 1;
+        file_index += 1;
         let file_name = format!("{result_file}{file_index}.html");
         std::fs::write(file_name, html.join("\n"))
     } else {
